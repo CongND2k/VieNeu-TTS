@@ -1,0 +1,47 @@
+name: Build Portable Windows
+
+on:
+  workflow_dispatch: {}
+  push:
+    tags:
+      - "portable-*"
+
+concurrency:
+  group: portable-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build VieNeu-TTS Portable (win64)
+    runs-on: windows-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Cache HuggingFace models
+        uses: actions/cache@v4
+        with:
+          path: dist/runtime/cache/huggingface
+          key: hf-models-v3-turbo-${{ runner.os }}-${{ hashFiles('scripts/download-models.ps1') }}
+          restore-keys: |
+            hf-models-v3-turbo-${{ runner.os }}-
+
+      - name: Build portable package
+        shell: pwsh
+        run: |
+          powershell -ExecutionPolicy Bypass -File scripts/build-portable.ps1
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VieNeu-TTS-Portable-win64
+          path: dist/VieNeu-TTS-Portable-win64.zip
+          retention-days: 14
+          if-no-files-found: error
