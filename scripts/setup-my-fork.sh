@@ -26,7 +26,7 @@ fi
 
 echo ">> Tao fork (neu chua co)..."
 if ! git ls-remote "https://github.com/$FORK_OWNER/$FORK_REPO.git" HEAD >/dev/null 2>&1; then
-  "$GH" repo fork "$UPSTREAM" --clone=false --remote=false --fork-name "$FORK_REPO"
+  "$GH" repo fork "$UPSTREAM" --clone=false --fork-name "$FORK_REPO"
   echo "Da tao fork: https://github.com/$FORK_OWNER/$FORK_REPO"
 else
   echo "Fork da ton tai."
