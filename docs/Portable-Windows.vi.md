@@ -116,6 +116,8 @@ Trước khi phát hành, test trên máy/VM **chưa cài Python**:
 | Antivirus chặn Python | Whitelist folder portable |
 | CI timeout | Workflow đặt `timeout-minutes: 90`; model cache qua `actions/cache` |
 | Model private | Thêm secret `HF_TOKEN` vào repo GitHub |
+| Lỗi `huggingface_hub` / `get_hf_file_metadata` | Model chưa có trong cache offline. Double-click `Download-Models.bat` (cần internet), hoặc tải lại ZIP portable đầy đủ từ GitHub Releases. Kiểm tra folder `runtime\cache\huggingface\hub` có dữ liệu (~2–5 GB). |
+| Không vào được huggingface.co | Bật VPN/proxy, hoặc đặt mirror: `set HF_ENDPOINT=https://hf-mirror.com` trong `Download-Models.bat` trước khi tải |
 
 ## Tag release portable
 

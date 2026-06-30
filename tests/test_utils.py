@@ -1,6 +1,8 @@
+from unittest.mock import patch
+
 import numpy as np
 import pytest
-from vieneu.utils import _linear_overlap_add, extract_speech_ids
+from vieneu.utils import _linear_overlap_add, download_hf_model_file, extract_speech_ids
 from vieneu_utils.core_utils import split_text_into_chunks, join_audio_chunks
 
 # --- Text Utils Tests ---
@@ -79,3 +81,26 @@ def test_extract_speech_ids():
     assert extract_speech_ids(codes_str) == [100, 101, 102]
     assert extract_speech_ids("no speech here") == []
     assert extract_speech_ids("<|speech_abc|>") == []
+
+
+@patch("huggingface_hub.hf_hub_download", return_value="/tmp/model.onnx")
+def test_download_hf_model_file_offline(mock_download, monkeypatch):
+    monkeypatch.setenv("HF_HUB_OFFLINE", "1")
+    path = download_hf_model_file("org/repo", "model.onnx")
+    assert path == "/tmp/model.onnx"
+    mock_download.assert_called_once_with(
+        repo_id="org/repo",
+        filename="model.onnx",
+        repo_type="model",
+        token=None,
+        local_files_only=True,
+    )
+
+
+@patch("huggingface_hub.hf_hub_download", side_effect=[OSError("network"), "/tmp/cached.onnx"])
+def test_download_hf_model_file_network_fallback(mock_download, monkeypatch):
+    monkeypatch.delenv("HF_HUB_OFFLINE", raising=False)
+    path = download_hf_model_file("org/repo", "cached.onnx")
+    assert path == "/tmp/cached.onnx"
+    assert mock_download.call_count == 2
+    assert mock_download.call_args_list[1].kwargs["local_files_only"] is True

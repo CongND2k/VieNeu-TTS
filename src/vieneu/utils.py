@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import re
 import logging
@@ -103,6 +104,66 @@ def _compile_codec_with_triton(codec: Any) -> bool:
     except Exception as e:
         logger.error(f"   ⚠️ Triton compilation failed: {e}")
         return False
+
+def _hf_offline_mode() -> bool:
+    return os.environ.get("HF_HUB_OFFLINE", "").strip() in {"1", "true", "True", "yes", "YES"}
+
+
+def download_hf_model_file(
+    repo_id: str,
+    filename: str,
+    *,
+    repo_type: str = "model",
+    hf_token: Optional[str] = None,
+) -> str:
+    """Download (or resolve from cache) a single file from the Hugging Face Hub.
+
+    Respects ``HF_HUB_OFFLINE`` and falls back to the local cache when the
+    network is unavailable.
+    """
+    from huggingface_hub import hf_hub_download
+
+    kwargs = {
+        "repo_id": repo_id,
+        "filename": filename,
+        "repo_type": repo_type,
+        "token": hf_token,
+    }
+    hf_home = os.environ.get("HF_HOME") or os.environ.get("HUGGINGFACE_HUB_CACHE")
+
+    if _hf_offline_mode():
+        try:
+            return hf_hub_download(**kwargs, local_files_only=True)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Không tìm thấy '{filename}' của '{repo_id}' trong cache offline.\n"
+                f"Missing '{filename}' from '{repo_id}' in offline cache.\n"
+                f"HF_HOME={hf_home or '(mặc định / default)'}\n"
+                "Cách khắc phục / Fix:\n"
+                "  1. Chạy Download-Models.bat (bản portable Windows) hoặc "
+                "scripts\\download-models.ps1 khi có internet.\n"
+                "  2. Hoặc tải bản ZIP portable đầy đủ từ GitHub Releases.\n"
+                "  3. Hoặc tạm tắt HF_HUB_OFFLINE trong Start.bat rồi chạy lại khi có mạng."
+            ) from exc
+
+    try:
+        return hf_hub_download(**kwargs)
+    except Exception:
+        logger.warning(
+            "Network download failed for %s/%s; trying local cache...",
+            repo_id,
+            filename,
+        )
+        try:
+            return hf_hub_download(**kwargs, local_files_only=True)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Không thể tải '{filename}' từ '{repo_id}' (mạng lỗi và không có cache).\n"
+                f"Could not download '{filename}' from '{repo_id}' (network error, no cache).\n"
+                f"HF_HOME={hf_home or '(mặc định / default)'}\n"
+                "Kiểm tra internet/VPN/proxy tới huggingface.co, hoặc chạy Download-Models.bat."
+            ) from exc
+
 
 # Pre-compile regex for speech token extraction
 RE_SPEECH_TOKEN = re.compile(r"<\|speech_(\d+)\|>")

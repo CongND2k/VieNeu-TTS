@@ -82,6 +82,11 @@ if (-not (Test-Path $StartTemplate)) {
 }
 Copy-Item -Force $StartTemplate (Join-Path $DistDir "Start.bat")
 
+$DownloadModelsTemplate = Join-Path $Root "dist-templates\Download-Models.bat"
+if (Test-Path $DownloadModelsTemplate) {
+    Copy-Item -Force $DownloadModelsTemplate (Join-Path $DistDir "Download-Models.bat")
+}
+
 $Readme = @"
 VieNeu-TTS Portable (Windows)
 =============================

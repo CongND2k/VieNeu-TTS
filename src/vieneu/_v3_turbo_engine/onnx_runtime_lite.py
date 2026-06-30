@@ -123,10 +123,10 @@ class OnnxV3LiteEngine:
     # ── artifact helpers ──────────────────────────────────────────────────
     @staticmethod
     def _fetch(repo: str, files: List[str], hf_token: Optional[str]) -> Path:
-        from huggingface_hub import hf_hub_download
+        from vieneu.utils import download_hf_model_file
         last = None
         for fn in files:
-            last = hf_hub_download(repo, fn, repo_type="model", token=hf_token)
+            last = download_hf_model_file(repo, fn, hf_token=hf_token)
         return Path(last).parent
 
     @staticmethod
@@ -139,8 +139,8 @@ class OnnxV3LiteEngine:
             cand = Path(onnx_dir).parent / local_name
             if cand.exists():
                 return cand
-        from huggingface_hub import hf_hub_download
-        return hf_hub_download(repo, fn, repo_type="model", token=hf_token)
+        from vieneu.utils import download_hf_model_file
+        return download_hf_model_file(repo, fn, hf_token=hf_token)
 
     # ── numpy embedding / heads / sampling ────────────────────────────────
     def _embed_rows(self, rows: np.ndarray) -> np.ndarray:
