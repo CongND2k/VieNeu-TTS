@@ -2,7 +2,7 @@
 chcp 65001 >nul
 cd /d "%~dp0"
 
-set "HF_HOME=%~dp0runtime\cache\huggingface"
+call "%~dp0hf_cache_env.bat"
 set "HF_HUB_OFFLINE="
 set "TRANSFORMERS_OFFLINE="
 

@@ -22,6 +22,40 @@ DOWNLOADS: Tuple[Tuple[str, str], ...] = (
 
 MAX_ATTEMPTS = 4
 RETRY_DELAY_SEC = 5
+# Leave headroom for hub\models--...\snapshots\...\onnx\... on Windows (MAX_PATH ~260).
+MAX_HF_HOME_LEN = 80
+
+
+def _default_short_hf_home() -> str:
+    local_app = os.environ.get("LOCALAPPDATA")
+    if local_app:
+        return os.path.join(local_app, "VieNeu-TTS", "hf-cache")
+    return os.path.join(os.path.expanduser("~"), ".vieneu-tts", "hf-cache")
+
+
+def ensure_short_hf_home() -> str:
+    """Pick a cache dir that stays under the Windows path-length limit."""
+    hf_home = os.environ.get("HF_HOME") or os.environ.get("HUGGINGFACE_HUB_CACHE")
+    if sys.platform == "win32":
+        short_home = _default_short_hf_home()
+        if not hf_home or len(os.path.abspath(hf_home)) > MAX_HF_HOME_LEN:
+            if hf_home and os.path.abspath(hf_home) != os.path.abspath(short_home):
+                print(
+                    "Duong dan cache qua dai tren Windows; chuyen sang cache ngan:\n"
+                    f"  {hf_home}\n"
+                    f"  -> {short_home}"
+                )
+            hf_home = short_home
+        os.environ["HF_HOME"] = hf_home
+        os.environ["HUGGINGFACE_HUB_CACHE"] = hf_home
+    elif hf_home:
+        os.environ.setdefault("HF_HOME", hf_home)
+        os.environ.setdefault("HUGGINGFACE_HUB_CACHE", hf_home)
+    else:
+        hf_home = _default_short_hf_home()
+        os.environ["HF_HOME"] = hf_home
+        os.environ["HUGGINGFACE_HUB_CACHE"] = hf_home
+    return hf_home
 
 
 def _print_env() -> None:
@@ -56,9 +90,8 @@ def _download_one(repo_id: str, filename: str) -> None:
 
 
 def download_all(items: Iterable[Tuple[str, str]] = DOWNLOADS) -> int:
-    hf_home = os.environ.get("HF_HOME")
-    if hf_home:
-        os.makedirs(hf_home, exist_ok=True)
+    hf_home = ensure_short_hf_home()
+    os.makedirs(hf_home, exist_ok=True)
     _print_env()
 
     failed: list[tuple[str, str, str]] = []
@@ -81,8 +114,10 @@ def download_all(items: Iterable[Tuple[str, str]] = DOWNLOADS) -> int:
         print("  1. Kiem tra internet, thu lai Download-Models.bat (file da tai se duoc resume).")
         print("  2. Neu khong vao duoc huggingface.co, dat mirror truoc khi chay:")
         print("       set HF_ENDPOINT=https://hf-mirror.com")
-        print("  3. Neu dung proxy cong ty, dat HTTPS_PROXY/HTTP_PROXY.")
-        print("  4. Tat tam antivirus neu no chan file .onnx/.data dang tai.")
+        print("  3. Neu thay WinError 206 / filename too long: cache da chuyen ve")
+        print("       %LOCALAPPDATA%\\VieNeu-TTS\\hf-cache (duong dan ngan).")
+        print("  4. Neu dung proxy cong ty, dat HTTPS_PROXY/HTTP_PROXY.")
+        print("  5. Tat tam antivirus neu no chan file .onnx/.data dang tai.")
         return 1
 
     print(">> Tai model xong. Hay chay Start.bat.")

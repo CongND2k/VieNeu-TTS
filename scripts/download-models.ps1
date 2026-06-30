@@ -8,7 +8,12 @@ $Root = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $Root
 
 if (-not $CacheDir) {
-    $CacheDir = Join-Path $Root "dist\runtime\cache\huggingface"
+    $PortableCache = Join-Path $Root "dist\VieNeu-TTS-Portable\runtime\cache\huggingface"
+    if (Test-Path (Split-Path $PortableCache -Parent)) {
+        $CacheDir = $PortableCache
+    } else {
+        $CacheDir = Join-Path $env:LOCALAPPDATA "VieNeu-TTS\hf-cache"
+    }
 }
 
 $env:HF_HOME = $CacheDir

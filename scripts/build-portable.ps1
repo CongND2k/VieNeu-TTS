@@ -87,6 +87,11 @@ if (Test-Path $DownloadModelsTemplate) {
     Copy-Item -Force $DownloadModelsTemplate (Join-Path $DistDir "Download-Models.bat")
 }
 
+$HfCacheEnvTemplate = Join-Path $Root "dist-templates\hf_cache_env.bat"
+if (Test-Path $HfCacheEnvTemplate) {
+    Copy-Item -Force $HfCacheEnvTemplate (Join-Path $DistDir "hf_cache_env.bat")
+}
+
 $DownloadScriptTemplate = Join-Path $Root "dist-templates\download_portable_models.py"
 if (Test-Path $DownloadScriptTemplate) {
     Copy-Item -Force $DownloadScriptTemplate (Join-Path $DistDir "download_portable_models.py")
@@ -111,7 +116,10 @@ Doi port: sua GRADIO_SERVER_PORT trong Start.bat
 Thu muc:
   app/              - ma nguon ung dung
   runtime/python/   - Python + thu vien
-  runtime/cache/    - model da tai san
+  runtime/cache/    - model bundled (neu co); lan chay dau copy sang AppData
+
+Cache model khi chay (duong dan ngan, tranh WinError 206):
+  %LOCALAPPDATA%\VieNeu-TTS\hf-cache
 
 "@ 
 Set-Content -Path (Join-Path $DistDir "README.txt") -Value $Readme -Encoding UTF8

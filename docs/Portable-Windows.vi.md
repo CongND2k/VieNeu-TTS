@@ -116,8 +116,9 @@ Trước khi phát hành, test trên máy/VM **chưa cài Python**:
 | Antivirus chặn Python | Whitelist folder portable |
 | CI timeout | Workflow đặt `timeout-minutes: 90`; model cache qua `actions/cache` |
 | Model private | Thêm secret `HF_TOKEN` vào repo GitHub |
-| Lỗi `huggingface_hub` / `get_hf_file_metadata` | Model chưa có trong cache offline. Double-click `Download-Models.bat` (cần internet), hoặc tải lại ZIP portable đầy đủ từ GitHub Releases. Kiểm tra folder `runtime\cache\huggingface\hub` có dữ liệu (~2–5 GB). |
-| Lỗi tải `OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX` | Thường do mạng/VPN tới Hugging Face (file VieNeu đã tải xong nhưng MOSS bị ngắt). Mở `Download-Models.bat`, bỏ comment `set HF_ENDPOINT=https://hf-mirror.com`, chạy lại — script sẽ resume file đã tải. |
+| Lỗi `huggingface_hub` / `get_hf_file_metadata` | Model chưa có trong cache offline. Chạy `Download-Models.bat` (cần internet), hoặc tải lại ZIP portable đầy đủ. Cache runtime nằm tại `%LOCALAPPDATA%\VieNeu-TTS\hf-cache`. |
+| Lỗi tải `OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX` | Thường do mạng/VPN tới Hugging Face. Bỏ comment `set HF_ENDPOINT=https://hf-mirror.com` trong `Download-Models.bat`, chạy lại — script sẽ resume file đã tải. |
+| `WinError 206` / filename too long | Giải nén folder quá sâu (ví dụ `Downloads\...\dist\...`). Bản mới dùng cache ngắn `%LOCALAPPDATA%\VieNeu-TTS\hf-cache`. Hoặc giải nén vào `C:\VieNeu-TTS`. |
 | Không vào được huggingface.co | Bật VPN/proxy, hoặc đặt mirror: `set HF_ENDPOINT=https://hf-mirror.com` trong `Download-Models.bat` trước khi tải |
 
 ## Tag release portable

@@ -143,7 +143,9 @@ def download_hf_model_file(
                 "  1. Chạy Download-Models.bat (bản portable Windows) hoặc "
                 "scripts\\download-models.ps1 khi có internet.\n"
                 "  2. Hoặc tải bản ZIP portable đầy đủ từ GitHub Releases.\n"
-                "  3. Hoặc tạm tắt HF_HUB_OFFLINE trong Start.bat rồi chạy lại khi có mạng."
+                "  3. Hoặc tạm tắt HF_HUB_OFFLINE trong Start.bat rồi chạy lại khi có mạng.\n"
+                "  4. WinError 206 (Windows): cache nằm tại "
+                "%LOCALAPPDATA%\\VieNeu-TTS\\hf-cache — tránh giải nén folder quá sâu."
             ) from exc
 
     try:
