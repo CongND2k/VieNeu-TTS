@@ -6,8 +6,17 @@ set "HF_HOME=%~dp0runtime\cache\huggingface"
 set "HF_HUB_OFFLINE="
 set "TRANSFORMERS_OFFLINE="
 
+rem Neu loi tai model (dac biet OpenMOSS-Team), bo comment dong duoi:
+rem set "HF_ENDPOINT=https://hf-mirror.com"
+
 if not exist "%~dp0runtime\python\Scripts\python.exe" (
     echo Khong tim thay Python portable. Hay chay Start.bat sau khi giai nen dung folder.
+    pause
+    exit /b 1
+)
+
+if not exist "%~dp0download_portable_models.py" (
+    echo Thieu download_portable_models.py. Hay tai lai ban portable moi hon.
     pause
     exit /b 1
 )
@@ -16,13 +25,14 @@ echo Dang tai model HuggingFace ve: %HF_HOME%
 echo Can ket noi internet. Qua trinh nay co the mat vai phut...
 echo.
 
-"%~dp0runtime\python\Scripts\python.exe" -c "import os; os.makedirs(os.environ['HF_HOME'], exist_ok=True); from huggingface_hub import hf_hub_download; downloads=[('pnnbao-ump/VieNeu-TTS-v3-Turbo','onnx/vieneu_prefill.onnx'),('pnnbao-ump/VieNeu-TTS-v3-Turbo','onnx/vieneu_decode_step.onnx'),('pnnbao-ump/VieNeu-TTS-v3-Turbo','onnx/vieneu_acoustic_cached.onnx'),('pnnbao-ump/VieNeu-TTS-v3-Turbo','onnx/vieneu_backbone_shared.data'),('pnnbao-ump/VieNeu-TTS-v3-Turbo','onnx/vieneu_v3_heads.npz'),('pnnbao-ump/VieNeu-TTS-v3-Turbo','config.json'),('pnnbao-ump/VieNeu-TTS-v3-Turbo','tokenizer.json'),('OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX','moss_audio_tokenizer_decode_full.onnx'),('OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX','moss_audio_tokenizer_decode_shared.data'),('OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX','moss_audio_tokenizer_encode.onnx'),('OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX','moss_audio_tokenizer_encode.data')]; [print(f'   {r} :: {f}') or hf_hub_download(repo_id=r, filename=f, repo_type='model') for r,f in downloads]; print('>> Tai model xong. Hay chay Start.bat.')"
+"%~dp0runtime\python\Scripts\python.exe" "%~dp0download_portable_models.py"
+set "DL_EXIT=%ERRORLEVEL%"
 
-if errorlevel 1 (
+if not "%DL_EXIT%"=="0" (
     echo.
-    echo Tai model that bai. Kiem tra internet/VPN/proxy toi huggingface.co
+    echo Tai model chua xong. Xem loi o tren va thu lai.
     pause
-    exit /b 1
+    exit /b %DL_EXIT%
 )
 
 echo.

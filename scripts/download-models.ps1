@@ -26,38 +26,14 @@ function Ensure-Uv {
 Ensure-Uv
 uv sync --quiet
 
-$downloadScript = @'
-import os
-import sys
-from huggingface_hub import hf_hub_download
-
-cache = os.environ["HF_HOME"]
-os.makedirs(cache, exist_ok=True)
-
-downloads = [
-    ("pnnbao-ump/VieNeu-TTS-v3-Turbo", "onnx/vieneu_prefill.onnx"),
-    ("pnnbao-ump/VieNeu-TTS-v3-Turbo", "onnx/vieneu_decode_step.onnx"),
-    ("pnnbao-ump/VieNeu-TTS-v3-Turbo", "onnx/vieneu_acoustic_cached.onnx"),
-    ("pnnbao-ump/VieNeu-TTS-v3-Turbo", "onnx/vieneu_backbone_shared.data"),
-    ("pnnbao-ump/VieNeu-TTS-v3-Turbo", "onnx/vieneu_v3_heads.npz"),
-    ("pnnbao-ump/VieNeu-TTS-v3-Turbo", "config.json"),
-    ("pnnbao-ump/VieNeu-TTS-v3-Turbo", "tokenizer.json"),
-    ("OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX", "moss_audio_tokenizer_decode_full.onnx"),
-    ("OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX", "moss_audio_tokenizer_decode_shared.data"),
-    ("OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX", "moss_audio_tokenizer_encode.onnx"),
-    ("OpenMOSS-Team/MOSS-Audio-Tokenizer-Nano-ONNX", "moss_audio_tokenizer_encode.data"),
-]
-
-for repo, filename in downloads:
-    print(f"   {repo} :: {filename}")
-    hf_hub_download(repo_id=repo, filename=filename)
-
-print(">> Model download complete.")
-'@
+$downloadScriptPath = Join-Path $Root "dist-templates\download_portable_models.py"
+if (-not (Test-Path $downloadScriptPath)) {
+    throw "Missing dist-templates\download_portable_models.py"
+}
 
 Write-Host ">> Downloading models..."
 $env:HF_HOME = $CacheDir
-uv run python -c $downloadScript
+uv run python $downloadScriptPath
 
 $totalBytes = (Get-ChildItem -Recurse $CacheDir -File -ErrorAction SilentlyContinue |
     Measure-Object -Property Length -Sum).Sum

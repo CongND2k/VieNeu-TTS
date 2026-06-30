@@ -87,6 +87,11 @@ if (Test-Path $DownloadModelsTemplate) {
     Copy-Item -Force $DownloadModelsTemplate (Join-Path $DistDir "Download-Models.bat")
 }
 
+$DownloadScriptTemplate = Join-Path $Root "dist-templates\download_portable_models.py"
+if (Test-Path $DownloadScriptTemplate) {
+    Copy-Item -Force $DownloadScriptTemplate (Join-Path $DistDir "download_portable_models.py")
+}
+
 $Readme = @"
 VieNeu-TTS Portable (Windows)
 =============================
