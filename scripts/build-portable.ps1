@@ -75,26 +75,22 @@ if (Test-Path $PyvenvCfg) {
     Set-Content -Path $PyvenvCfg -Value $cfg -Encoding UTF8
 }
 
-Write-Host ">> Copying launcher..."
-$StartTemplate = Join-Path $Root "dist-templates\Start.bat"
-if (-not (Test-Path $StartTemplate)) {
-    throw "Missing dist-templates\Start.bat"
-}
-Copy-Item -Force $StartTemplate (Join-Path $DistDir "Start.bat")
-
-$DownloadModelsTemplate = Join-Path $Root "dist-templates\Download-Models.bat"
-if (Test-Path $DownloadModelsTemplate) {
-    Copy-Item -Force $DownloadModelsTemplate (Join-Path $DistDir "Download-Models.bat")
-}
-
-$HfCacheEnvTemplate = Join-Path $Root "dist-templates\hf_cache_env.bat"
-if (Test-Path $HfCacheEnvTemplate) {
-    Copy-Item -Force $HfCacheEnvTemplate (Join-Path $DistDir "hf_cache_env.bat")
-}
-
-$DownloadScriptTemplate = Join-Path $Root "dist-templates\download_portable_models.py"
-if (Test-Path $DownloadScriptTemplate) {
-    Copy-Item -Force $DownloadScriptTemplate (Join-Path $DistDir "download_portable_models.py")
+Write-Host ">> Copying launchers (bat + helpers)..."
+$LauncherDir = Join-Path $Root "dist-templates"
+$RequiredLaunchers = @(
+    "Start.bat",
+    "Download-Models.bat",
+    "hf_cache_env.bat",
+    "download_portable_models.py",
+    "Chuyen-May-Khac.bat"
+)
+foreach ($name in $RequiredLaunchers) {
+    $src = Join-Path $LauncherDir $name
+    if (-not (Test-Path $src)) {
+        throw "Missing dist-templates\$name"
+    }
+    Copy-Item -Force $src (Join-Path $DistDir $name)
+    Write-Host "   + $name"
 }
 
 $Readme = @"
@@ -105,6 +101,18 @@ Cach chay:
   1. Double-click Start.bat
   2. Trinh duyet se mo http://127.0.0.1:7860
   3. Chon model "VieNeu-TTS-v3-Turbo" va tao giong noi
+
+Chuyen sang may khac:
+  - Copy ca folder VieNeu-TTS-Portable (hoac giai nen file ZIP)
+  - Nen dat duong dan ngan: C:\VieNeu-TTS (tranh WinError 206)
+  - Xem them: Chuyen-May-Khac.bat
+
+File khoi dong (nam o goc folder nay):
+  Start.bat
+  Download-Models.bat
+  hf_cache_env.bat
+  download_portable_models.py
+  Chuyen-May-Khac.bat
 
 Yeu cau:
   - Windows 10/11 x64

@@ -12,6 +12,10 @@ if (-not $DistDir) {
 
 $checks = @(
     @{ Path = "Start.bat"; Label = "Launcher" },
+    @{ Path = "Download-Models.bat"; Label = "Model downloader" },
+    @{ Path = "hf_cache_env.bat"; Label = "HF cache config" },
+    @{ Path = "download_portable_models.py"; Label = "Download script" },
+    @{ Path = "Chuyen-May-Khac.bat"; Label = "Transfer guide" },
     @{ Path = "README.txt"; Label = "Readme" },
     @{ Path = "app\apps\gradio_main.py"; Label = "Gradio app" },
     @{ Path = "app\src\vieneu\__init__.py"; Label = "vieneu package" },

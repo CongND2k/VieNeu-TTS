@@ -14,7 +14,11 @@ Giải pháp: script trên Mac điều phối build qua **GitHub Actions** hoặ
 | `scripts/build-portable.ps1` | Windows | Build folder portable + ZIP |
 | `scripts/download-models.ps1` | Windows | Tải model HuggingFace offline |
 | `scripts/validate-portable.ps1` | Windows | Kiểm tra cấu trúc folder sau build |
-| `dist-templates/Start.bat` | — | Launcher cho người dùng cuối |
+| `dist-templates/Start.bat` | — | Khởi động Web UI |
+| `dist-templates/Download-Models.bat` | — | Tải model Hugging Face |
+| `dist-templates/hf_cache_env.bat` | — | Cache ngắn `%LOCALAPPDATA%` |
+| `dist-templates/download_portable_models.py` | — | Script tải model (retry/resume) |
+| `dist-templates/Chuyen-May-Khac.bat` | — | Hướng dẫn copy sang máy khác |
 | `.github/workflows/build-portable-windows.yml` | CI | Build tự động trên Windows |
 
 ## Cách A — GitHub Actions (khuyến nghị)
@@ -79,16 +83,22 @@ Output: `dist\VieNeu-TTS-Portable-win64.zip`
 
 ```
 VieNeu-TTS-Portable/
-├── Start.bat
+├── Start.bat                    # Khởi động Web UI
+├── Download-Models.bat          # Tải model (lần đầu / khi thiếu)
+├── hf_cache_env.bat             # Cấu hình cache (gọi nội bộ)
+├── download_portable_models.py  # Script tải model
+├── Chuyen-May-Khac.bat          # Hướng dẫn copy sang máy khác
 ├── README.txt
 ├── runtime/
 │   ├── python/              # .venv (Python + thư viện)
-│   └── cache/huggingface/   # model ONNX đã tải sẵn
+│   └── cache/huggingface/   # model ONNX bundled (nếu build đầy đủ)
 └── app/
     ├── apps/
     ├── src/
     └── config.yaml
 ```
+
+**Chuyển sang máy khác:** copy cả folder `VieNeu-TTS-Portable` (hoặc file ZIP). Nên giải nén vào đường dẫn ngắn, ví dụ `C:\VieNeu-TTS`. Trên máy đích: `Download-Models.bat` (nếu chưa có model) → `Start.bat`.
 
 ## Biến thể build
 
